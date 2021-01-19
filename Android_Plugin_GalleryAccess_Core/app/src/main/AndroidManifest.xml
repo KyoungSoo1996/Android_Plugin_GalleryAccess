@@ -3,7 +3,7 @@
     package="com.example.android_plugin_galleryaccess_core">
 
     <application>
-    <activity android:name="com.example.android_plugin_galleryaccess_core.galleryAccess">
+    <activity android:name=".galleryAccess">
         </activity>
     </application>
 
