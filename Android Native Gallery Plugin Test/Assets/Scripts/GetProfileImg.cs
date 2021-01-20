@@ -17,14 +17,16 @@ public class GetProfileImg : MonoBehaviour
     public float[] MoveImage(float x, float y)
     {
         float xMove = 0.0f, yMove = 0.0f;
+        float width = GetComponent<RectTransform>().sizeDelta.x / 4;
+        float height = GetComponent<RectTransform>().sizeDelta.y / 4;
         if (xValue < yValue)
         {
-            xMove = (x + 50) / 50;
+            xMove = (x + width / height);
             profileImg.uvRect = new Rect(Mathf.Clamp(-xMove, 0, 1 - xValue), 0, xValue, yValue);
         }
         else if (xValue > yValue)
         {
-            yMove = (y + 50) / 50;
+            yMove = (y + height) / width;
             profileImg.uvRect = new Rect(0, Mathf.Clamp(-yMove, 0, 1 - yValue), xValue, yValue);
         }
         else
@@ -38,7 +40,7 @@ public class GetProfileImg : MonoBehaviour
     public IEnumerator CoSaveImg(Texture _texture, int x, int y)
     {
         yield return new WaitForEndOfFrame();
-        var width  = (int)(128 * (xValue >= 1 ? 1 : xValue));
+        var width = (int)(128 * (xValue >= 1 ? 1 : xValue));
         var height = (int)(128 * (yValue >= 1 ? 1 : yValue));
         Texture2D texture = ScaleTexture((Texture2D)_texture, width, height, x, y);
 
