@@ -6,15 +6,19 @@ public class DragImage : EventTrigger
 {
     private bool startDragging;
     float[] posGroup = { 0, 0 };
+
+    private float startX, startY;
     public override void OnDrag(PointerEventData eventData)
     {
         GetComponent<Button>().interactable = false;
-        posGroup = gameObject.GetComponentInParent<GetProfileImg>().MoveImage(Input.mousePosition.x - Screen.width / 2, Input.mousePosition.y - Screen.height / 2 - 125);
+        posGroup = gameObject.GetComponentInParent<GetProfileImg>().MoveImage(Input.mousePosition.x - startX, Input.mousePosition.y - startY);
     }
 
     public override void OnPointerDown(PointerEventData eventData)
     {
         startDragging = true;
+        startX = Input.mousePosition.x;
+        startY = Input.mousePosition.y;
     }
 
     public override void OnPointerUp(PointerEventData eventData)
@@ -30,7 +34,8 @@ public class DragImage : EventTrigger
         yield break;
     }
 
-    public void OnClickSave(){
-        StartCoroutine(gameObject.GetComponentInParent<GetProfileImg>().CoSaveImg(GetComponentInParent<GetProfileImg>().profileImg.texture, 0, 0));
+    public void OnClickSave()
+    {
+        StartCoroutine(gameObject.GetComponentInParent<GetProfileImg>().CoSaveImg(GetComponentInParent<GetProfileImg>().profileImg.texture, posGroup[0] , posGroup[1]));
     }
 }

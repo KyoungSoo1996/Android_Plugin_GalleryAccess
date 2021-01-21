@@ -5,6 +5,7 @@ using System.Collections;
 
 public class GetProfileImg : MonoBehaviour
 {
+    public int _RESOLUTION = 256;
     public RawImage profileImg;
     [SerializeField] private Image bakcgroundImg;
 
@@ -17,37 +18,52 @@ public class GetProfileImg : MonoBehaviour
     public float[] MoveImage(float x, float y)
     {
         float xMove = 0.0f, yMove = 0.0f;
-        float width = GetComponent<RectTransform>().sizeDelta.x / 4;
-        float height = GetComponent<RectTransform>().sizeDelta.y / 4;
+        float[] result;
+        xMove = -x / 30;
+        yMove = -y / 30;
         if (xValue < yValue)
         {
-            xMove = (x + width / height);
-            profileImg.uvRect = new Rect(Mathf.Clamp(-xMove, 0, 1 - xValue), 0, xValue, yValue);
+            xMove = Mathf.Clamp(xMove, 0, 1 - xValue);
+            profileImg.uvRect = new Rect(xMove, 0, xValue, yValue);
+            yMove = 0;
+            result = new float[] { xMove, 0 };
+            return result;
         }
         else if (xValue > yValue)
         {
-            yMove = (y + height) / width;
-            profileImg.uvRect = new Rect(0, Mathf.Clamp(-yMove, 0, 1 - yValue), xValue, yValue);
+            yMove = Mathf.Clamp(yMove, 0, 1 - yValue);
+            xMove = 0;
+            profileImg.uvRect = new Rect(0, yMove, xValue, yValue);
+            result = new float[] { 0, yMove };
+            return result;
         }
         else
         {
             return null;
         }
-        float[] result = { xMove, yMove };
-        return result;
     }
 
-    public IEnumerator CoSaveImg(Texture _texture, int x, int y)
+    public IEnumerator CoSaveImg(Texture _texture, float x, float y)
     {
+        
+        Debug.Log(x);
+        Debug.Log(y);
         yield return new WaitForEndOfFrame();
-        var width = (int)(128 * (xValue >= 1 ? 1 : xValue));
-        var height = (int)(128 * (yValue >= 1 ? 1 : yValue));
-        Texture2D texture = ScaleTexture((Texture2D)_texture, width, height, x, y);
+        var width = (int)(_RESOLUTION * (xValue >= 1 ? 1 : 1 / xValue));
+        var height = (int)(_RESOLUTION * (yValue >= 1 ? 1 : 1 / yValue));
+        Texture2D texture = ScaleTexture((Texture2D)_texture, width, height, 0, 0);
 
-        Color[] colors = texture.GetPixels(0, 0, width, height);
+        Color[] colors = texture.GetPixels((int)(x * width), (int)(y * width), _RESOLUTION, _RESOLUTION);
         texture.Apply();
-        profileImg.texture = texture;
-        byte[] bytes = texture.EncodeToPNG();
+
+        Texture2D finTexture = new Texture2D(_RESOLUTION, _RESOLUTION, texture.format, false, false);
+        finTexture.SetPixels(0, 0, _RESOLUTION, _RESOLUTION, colors);
+        finTexture.Apply();
+        profileImg.texture = finTexture;
+        profileImg.uvRect = new Rect(0, 0, 1, 1);
+        xValue = 1;
+        yValue = 1;
+        byte[] bytes = finTexture.EncodeToPNG();
         File.WriteAllBytes(Application.dataPath + "/" + "test.png", bytes);
         Debug.Log(Application.dataPath + "/" + "test.png");
     }
@@ -85,7 +101,7 @@ public class GetProfileImg : MonoBehaviour
 
     public void OnClickProfileSwtich()
     {
-        PickImage(128);
+        PickImage(_RESOLUTION);
     }
 
 
